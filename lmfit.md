@@ -2,9 +2,12 @@
 
 #formatting assay data (into matrix)
 
-> data <- readRDS("mvalues.chr14.rds") 
-> mvalues <- as.matrix(data)
-> class(mvalues)
+data <- readRDS("mvalues.chr14.rds") 
+
+mvalues <- as.matrix(data)
+
+class(mvalues)
+
 [1] "matrix" "array"
 
 #creating phenotype data 
