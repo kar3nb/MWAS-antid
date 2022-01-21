@@ -61,5 +61,8 @@ design <- model.matrix(~eSet$pheno_smoking1)
 
 fit <- lmFit(eSet, design)
 
+fit <- eBayes(fit)
+
+
 
 
