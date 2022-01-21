@@ -69,4 +69,4 @@ Columns: 6
 
 #checking which dispense dates are within 12m of the blood draw appt
 
-> dispdates_within_interval = appt_dispdates_merge[which(appt_dispdates_merge$DispDate %within% appt_dispdates_merge$intervals)]
+> dispdates_within_interval = appt_dispdates_merge[which(appt_dispdates_merge$DispDate %within% appt_dispdates_merge$intervals),]
