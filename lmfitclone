@@ -1,0 +1,16 @@
+module add igmm/apps/R/4.1.0
+R
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("limma")
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("Biobase")
+
+#formatting assay data (into matrix)
+setwd("/exports/igmm/eddie/GenScotDepression/data/genscot/methylation/STRADL/Mvalues/chr")
+data <- readRDS("mvalues.chr14.rds") 
