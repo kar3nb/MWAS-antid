@@ -1,0 +1,14 @@
+/exports/igmm/eddie/GenScotDepression/data/genscot/phenotypes
+glimpse(load("masterDB.Rdata"))
+ chr "totaldata"
+smoking_pheno <- totaldata[,c("id","ever_smoke")]
+smoking_pheno1 <- na.omit(smoking_pheno)
+dim(smoking_pheno1)
+[1] 23324     2
+
+write.csv(smoking_pheno1, "/exports/eddie/scratch/v1kborge/smoking_data.csv", row.names = FALSE)
+
+PATH=$PATH:/exports/igmm/eddie/GenScotDepression/local/bin
+source ~/.bash_profile
+cd /exports/igmm/eddie/GenScotDepression/local/EWAS
+stradl_ewas --pdata /exports/eddie/scratch/v1kborge/smoking_data.csv --pheno ever_smoke --out /exports/eddie/scratch/v1kborge/stradl_smoking
