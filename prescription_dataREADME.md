@@ -63,10 +63,10 @@ Columns: 6
 
 > dim(appt_dispdates_merge)
 
-#setting up a 12 month interval prior to appt date (as column with dataframe)
+#setting up a 6 month interval prior to appt date (as column with dataframe)
 
-> appt_dispdates_merge$intervals <- interval(start=appt_dispdates_merge$appt-months(12), end=appt_dispdates_merge$appt)
+> appt_dispdates_merge$intervals <- interval(start=appt_dispdates_merge$appt-months(6), end=appt_dispdates_merge$appt)
 
-#checking which dispense dates are within 12m of the blood draw appt
+#checking which dispense dates are within 6m of the blood draw appt
 
 > dispdates_within_interval = appt_dispdates_merge[which(appt_dispdates_merge$DispDate %within% appt_dispdates_merge$intervals),]
