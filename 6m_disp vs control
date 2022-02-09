@@ -1,0 +1,59 @@
+# Making ("dispdates_6m.csv") IDs phenotype variable 1 
+setwd("/exports/eddie/scratch/v1kborge")
+pheno <- read.csv("dispdates_6m.csv")
+antid_disp <- rep(c(1), times = 2729)
+pheno1 <- cbind(pheno, antid_disp)
+pheno2 <- pheno1[,c("id","antid_disp")]
+pheno2 <- as.data.frame(pheno2)
+glimpse(pheno2)
+Rows: 2,729
+Columns: 2
+
+#creating control - participants that have never been dispensed anti-depressants 
+#participants dispensed SSRIs 
+setwd('/exports/cmvm/eddie/scs/groups/mcintosh-gs-linkage/data/patient/1617_0279')
+data <- read.csv("1617_0279_PIS.csv")
+SSRI <- subset(data, PIBNFParagraphCode == "403030")
+glimpse(SSRI)
+Rows: 94,480
+Columns: 29
+library(openxlsx)
+setwd('/exports/cmvm/eddie/scs/groups/mcintosh-gs-linkage/data/patient')
+ iddata <- read.xlsx("ST record linkage key.xlsx")
+ #merging
+SSRI <- merge(SSRI, iddata, by.x = "substitutionID")
+glimpse(SSRI)
+Rows: 94,480
+Columns: 30
+
+#participants that had blood drawn
+setwd('/exports/igmm/eddie/GenScotDepression/data/genscot/phenotypes')
+appt <- read.csv("appt.csv")
+glimpse(appt)
+Rows: 24,101
+Columns: 6
+
+#excluding participants that were dispensed SSRIs from appointment list
+control <- appt %>% anti_join(SSRI)
+glimpse(control)
+Rows: 19,502
+Columns: 1
+
+#creating phenotype variable 
+vec <- rep(c(0), times = 19502)
+control1 <- cbind(control, antid_disp = vec)
+
+#combining two datasets 
+pheno_antid_disp <- rbind(control1, pheno2)
+glimpse(pheno_antid_disp)
+Rows: 22,231
+Columns: 2
+table(pheno_antid_disp$antid_disp)
+0     1
+19502  2729
+
+#saving as phenotype data
+write.csv(pheno_antid_disp, "/exports/eddie/scratch/v1kborge/pheno_antid_disp.csv", row.names = FALSE)
+
+stradl_ewas_w3 --pdata /exports/eddie/scratch/v1kborge/pheno_antid_disp.csv --pheno antid_disp --out /exports/eddie/scratch/v1kborge/stradl_antid_disp_ewas
+Model: Your job 17526762 ("ewas_pheno_antid_disp_antid_disp") has been submitted
