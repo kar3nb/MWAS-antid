@@ -16,7 +16,8 @@ mutate(in_inter = DispDate %within% lag(DDinterval, 1)) %>%
 ungroup()
 
 #creating a count variable (of how many consective TRUEs - demarcating a "drug treatment episode")
-dates2$count <- with(rle(dates2$in_inter), rep(values*cumsum(values & lengths >= 2), lengths))
+dates2$count <- rleid(dates2$in_inter) # or dates2$count <- rep(seq_along(run$values),run$lengths)
+
 
 #finding the start and the end of the dispensing episodes
 #start of dispense episode
