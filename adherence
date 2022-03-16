@@ -28,7 +28,7 @@ dates2$count <- rleid(dates2$in_inter) # or dates2$count <- rep(seq_along(run$va
 + ungroup()
 
 end2 %>%
-rename(ep_name = DispDate)
+rename(ep_end = DispDate)
 
 #end of dispense episode
 end <- dates2 %>%
