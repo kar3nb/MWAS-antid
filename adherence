@@ -3,10 +3,11 @@ setwd('/exports/cmvm/eddie/scs/groups/mcintosh-gs-linkage/data/patient/1617_0279
 data <- read.csv("1617_0279_PIS.csv")
 #subset to SSRIs
 ssri <- subset(data, PIBNFParagraphCode == "403030")
+dates <- ssri
 dates$PrescDate <- ymd(ssri$PrescDate)
 dates$DispDate <- ymd(ssri$DispDate)
 
-#Creating a column outlining a 90 interval from the preceding dispense date 
+#Creating a column outlining a 90d interval from the preceding dispense date 
 dates$DDinterval <- interval(start=dates$DispDate, end=dates$DispDate %m+% months(3))
 
 #true/false value for whether a dispense date falls after 90days of the previous dispense date
