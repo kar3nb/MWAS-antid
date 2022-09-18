@@ -1,3 +1,5 @@
+Looking at adherence through creation of drug treatment episodes
+
 #formatting existing data 
 setwd('/exports/cmvm/eddie/scs/groups/mcintosh-gs-linkage/data/patient/1617_0279')
 data <- read.csv("1617_0279_PIS.csv")
