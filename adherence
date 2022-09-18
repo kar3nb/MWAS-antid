@@ -7,29 +7,31 @@ dates <- ssri
 dates$PrescDate <- ymd(ssri$PrescDate)
 dates$DispDate <- ymd(ssri$DispDate)
 
-#Creating a column outlining a 90d interval from the preceding dispense date 
+#creating a column outlining a 90d interval from the preceding dispense date 
 dates$DDinterval <- interval(start=dates$DispDate, end=dates$DispDate %m+% months(3))
 
-#true/false value for whether a dispense date falls after 90days of the previous dispense date
+#true/false value for whether a dispense date falls within 90days of the previous dispense date
 dates2 <- dates %>% 
 group_by(substitutionID) %>%
 mutate(in_inter = DispDate %within% lag(DDinterval, 1)) %>%
 ungroup()
 
-#creating a count variable (of how many consective TRUEs - demarcating a "drug treatment episode")
+#creating a count variable (of how many consecutive TRUEs - demarcating a "drug treatment episode")
+library(data.table)
 dates2$count <- rleid(dates2$in_inter) # or dates2$count <- rep(seq_along(run$values),run$lengths)
 
+#finding the length of a "drug treatment episode"
 
-#finding the start and the end of the dispensing episodes
 #start of dispense episode
-> start <- dates2 %>%
-+ group_by(count) %>%
-+ filter(DispDate == min(DispDate)) %>%
-+ slice(1) %>%
-+ ungroup()
+start <- dates2 %>%
+group_by(count) %>%
+filter(DispDate == min(DispDate)) %>%
+slice(1) %>%
+ungroup()
 
-end2 %>%
-rename(ep_end = DispDate)
+start2 <- start[,c("substitutionID","count","DispDate")]
+start2 <- start2 %>%
+rename(ep_start = DispDate)
 
 #end of dispense episode
 end <- dates2 %>%
@@ -38,12 +40,13 @@ filter(DispDate == max(DispDate)) %>%
 slice(1) %>%
 ungroup()
 
-start2 %>%
-rename(ep_start = DispDate)
+end2 <- end[,c("substitutionID","count","DispDate")]
+end2 <- end2 %>%
+rename(ep_end = DispDate)
 
 #calculating the duration of dispensing episodes
+length <- left_join(start2, end2 by = "count")
 length2 <- length %>%
 mutate(ep_length = days(ep_end-ep_start))
 
-
-
+write_rds(length2, "/exports/eddie/scratch/v1kborge/drug_tr_ep_length.rds")
