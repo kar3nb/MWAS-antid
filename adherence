@@ -2,7 +2,7 @@
 setwd('/exports/cmvm/eddie/scs/groups/mcintosh-gs-linkage/data/patient/1617_0279')
 data <- read.csv("1617_0279_PIS.csv")
 #subset to SSRIs
-dates <- subset(data, PIBNFParagraphCode == "403030")
+ssri <- subset(data, PIBNFParagraphCode == "403030")
 dates$PrescDate <- ymd(ssri$PrescDate)
 dates$DispDate <- ymd(ssri$DispDate)
 
