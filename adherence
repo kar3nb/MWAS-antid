@@ -52,3 +52,31 @@ length2 <- length %>%
 mutate(ep_length = days(ep_end-ep_start))
 
 write_rds(length2, "/exports/eddie/scratch/v1kborge/drug_tr_ep_length.rds")
+
+Matching blood draw appointments to drug treatment episodes
+
+#formatting dispensing & blood draw data
+SSRI_6m <- readRDS("SSRI_6m.RDS")
+blood_appt <- SSRI_6m[,c("substitutionID","appt")]
+blood_appt1 <- blood_appt[!duplicated(blood_appt),]
+dte <- readRDS("drug_tr_ep_length.rds")
+
+#merging datasets (those dispensed SSRIs within 6m of blood draw, and that corresponding drug treatment episode)
+#expressing drug treatment episodes as an interval
+dte$dt_episode <- interval(start=dte$ep_start, end=dte$ep_end)
+
+dte <- dte %>%
+rename(substitutionID = substitutionID.x)
+merge <- left_join(blood_appt1, dte, by = "substitutionID")
+
+#pulling relevant drug treatment episodes
+dte_blood = merge[which(merge$appt %within% merge$dt_episode),]
+
+#finding out how many days between start of drug treatment episode and blood draw appt
+dte_blood2 <- dte_blood %>%
+mutate(time2appt = days(appt-ep_start))
+
+#converting time period into numerical quantities
+dte_blood2$time2appt <- time_length(dte_blood2$time2appt, unit="days")
+
+dte_blood2 <- dte_blood2[order(dte_blood2$time2appt),]
