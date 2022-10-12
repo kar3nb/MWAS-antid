@@ -75,8 +75,3 @@ dte_blood = merge[which(merge$appt %within% merge$dt_episode),]
 #finding out how many days between start of drug treatment episode and blood draw appt
 dte_blood2 <- dte_blood %>%
 mutate(time2appt = days(appt-ep_start))
-
-#converting time period into numerical quantities
-dte_blood2$time2appt <- time_length(dte_blood2$time2appt, unit="days")
-
-dte_blood2 <- dte_blood2[order(dte_blood2$time2appt),]
