@@ -1,0 +1,75 @@
+# MWAS-antid
+Config files for my GitHub profile.
+
+#Finding those on SSRIs 
+setwd('/exports/cmvm/eddie/scs/groups/mcintosh-gs-linkage/data/patient/1617_0279')
+presc_data <- read.csv("1617_0279_PIS.csv")
+#subsetting prescription data
+SSRI <- subset(presc_data, PIBNFParagraphCode == "403030")
+table(SSRI["PIApprovedName"])
+#matching to ID
+setwd('/exports/cmvm/eddie/scs/groups/mcintosh-gs-linkage/data/patient')
+iddata <- read.xlsx("ST record linkage key.xlsx")
+merge <- merge(SSRI, iddata, by.x = "substitutionID")
+cases_SSRI <- merge
+
+#Finding individuals who have been dispensed SSRIs within 6m of their blood draw appt
+#getting appt data
+setwd('/exports/igmm/eddie/GenScotDepression/data/genscot/phenotypes')
+appt <- read.csv("appt.csv")
+appt2 <- appt[,c("id","appt")]
+#changing date format of appt data 
+appt2 = as.data.frame(appt2)
+appt2_date <- appt2
+appt2_date$appt <- dmy(appt2$appt)
+#changing date format of dispense date data
+cases_SSRI = as.data.frame(cases_SSRI)
+cases_SSRI_DD <- cases_SSRI
+cases_SSRI_DD$DispDate <- ymd(cases_SSRI$DispDate)
+#combining dispense dates and blood draw dates datasets 
+appt_DD <- merge(cases_SSRI_DD, appt2_date, by.x="id")
+
+#setting up a 6 month interval prior to appt date (as column within combined dataframe)
+appt_DD$intervals <- interval(start=appt_DD$appt-months(6), end=appt_DD$appt)
+#checking which dispense dates are within 6m of the blood draw appt
+dispdates_within_interval = appt_DD[which(appt_DD$DispDate %within% appt_DD$intervals),]
+
+#saving dataframe as cases (SSRIs dispensed within 6m)
+write.csv(check, "/exports/eddie/scratch/v1kborge/SSRI_6m.csv", row.names = FALSE)
+
+#creating cases and controls
+#creating a phenotype variable where SSRI use is denoted as ‘1’ 
+SSRI_6m <- readRDS("SSRI_6m.RDS")
+SSRI_6m <- dispdates_within_interval 
+antid_disp <- rep(c(1), times = 2729)
+SSRI_6m_pheno <- cbind(SSRI_6m, antid_disp)
+SSRI_pheno <- SSRI_6m_pheno[,c("id","antid_disp")]
+
+#creating control - participants that have never been dispensed anti-depressants
+#excluding those dispensed SSRI from blood draw data set 
+control <- appt %>% anti_join(cases_SSRI)
+#creating phenotype variable where no SSRI is denoted as “0” 
+vec <- rep(c(0), times = 19502)
+control_pheno <- cbind(control, antid_disp = vec)
+control_p <- control_pheno[,c("id","antid_disp")]
+
+#combining cases and control into phenotype file
+pheno_antid_disp <- rbind(control_p,SSRI_pheno)
+#removing duplicate rows
+pheno_antid_disp[!duplicated(pheno_antid_disp), ]
+write.csv(pheno_antid_disp, "/exports/eddie/scratch/v1kborge/pheno_antid_disp.csv", row.names = FALSE)
+
+#creating covariate file for major depressive disorder
+setwd('/exports/igmm/eddie/GenScotDepression/data/genscot/phenotypes') 
+load("masterDB.Rdata")
+mdd <- totaldata[,c("id","mdd_types")]
+#merging single MDD episode and recurrent MDD into one category - denoted as “1”
+mdd2 <- mdd
+#excluding those with Bipolar disorder and “NAs”
+mdd3 <- filter(mdd2, mdd_types %in% c("0", "1"))
+mdd3 <- as.data.frame(mdd3)
+
+#modify default covariate file setwd('/exports/igmm/eddie/GenScotDepression/data/genscot/methylation/STRADL/Mvalues')
+cov_data <- readRDS("wave1_modelE_covariates.rds")
+cov_mdd <- left_join(cov_data, mdd3, by = “id”)
+write_rds(cov_mdd, "/exports/eddie/scratch/v1kborge/cov_mdd.rds", version = 2)
