@@ -62,9 +62,12 @@ SECOND MODEL ADJUSTING FOR MDD
 setwd('/exports/igmm/eddie/GenScotDepression/data/genscot/phenotypes') 
 load("masterDB.Rdata")
 mdd <- totaldata[,c("id","mdd_types")]
-#merging single MDD episode and recurrent MDD into one category - denoted as “1”
+glimpse(mdd)
+Rows: 24,083
 mdd2 <- mdd
-#excluding those with Bipolar disorder and “NAs”
+#changing 2s into 1s
+mdd2["mdd_types"][mdd2["mdd_types"]== 2] <- 1
+#getting rid of 3s
 mdd3 <- filter(mdd2, mdd_types %in% c("0", "1"))
 mdd3 <- as.data.frame(mdd3)
 
